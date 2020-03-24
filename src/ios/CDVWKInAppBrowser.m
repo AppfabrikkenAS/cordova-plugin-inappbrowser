@@ -223,7 +223,10 @@ static CDVWKInAppBrowser* instance = nil;
         }
     }
     self.inAppBrowserViewController.modalPresentationStyle = presentationStyle;
-    
+    if (@available(iOS 13.0, *)) {
+        self.inAppBrowserViewController.modalInPresentation = YES;
+    }
+
     // Set Transition Style
     UIModalTransitionStyle transitionStyle = UIModalTransitionStyleCoverVertical; // default
     if (browserOptions.transitionstyle != nil) {
@@ -1098,8 +1101,13 @@ BOOL isExiting = FALSE;
     if (IsAtLeastiOSVersion(@"7.0") && !viewRenderedAtLeastOnce) {
         viewRenderedAtLeastOnce = TRUE;
         CGRect viewBounds = [self.webView bounds];
-        viewBounds.origin.y = STATUSBAR_HEIGHT;
-        viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT;
+        if (@available(iOS 13.0, *) || UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+            viewBounds.origin.y = 0;
+            viewBounds.size.height = viewBounds.size.height - 0;
+        } else {
+            viewBounds.origin.y = STATUSBAR_HEIGHT;
+            viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT;
+        }
         self.webView.frame = viewBounds;
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle]];
     }
